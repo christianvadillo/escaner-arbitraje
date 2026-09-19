@@ -6,6 +6,74 @@ oferta con su publicación equivalente en ML y calcula la utilidad **neta** de r
 comisión, envío, impuestos 2026, empaque, devoluciones y costo de capital — no el margen bruto
 que hace ver rentable cualquier cosa.
 
+**Estado: construido, probado y detenido a propósito.** 154 pruebas en verde, CI configurado,
+todo corre offline. Nunca se conectó a datos reales por dos razones, y la primera es la que
+importa: **con precios de liquidación realistas la tesis casi no sobrevive a los costos** — solo
+2 de 11 ofertas legítimas pasan el filtro. La segunda es de acceso: Mercado Libre exige un
+permiso de API que esta app no tiene, y los retailers grandes bloquean el acceso automatizado
+(no se evaden protecciones; ver [Fuentes](#fuentes-qué-se-usa-y-qué-no)). Se dejó así en vez de
+seguir construyendo sobre una hipótesis que la propia herramienta puso en duda.
+
+## Qué demuestra este proyecto
+
+| | |
+|---|---|
+| **Matar la propia tesis con datos** | El resultado central no es "encontré oportunidades", es "la brecha bruta del 30 % se evapora". Un descuento de 20–25 % queda en punto de equilibrio y hace falta 30–35 % para llegar al ROI mínimo. El número salió del propio motor de costos, no de una opinión. |
+| **Emparejar sin identificador común** | El error caro no es perderse una oferta, es comprar el producto equivocado. Por eso la similitud de texto va **después** de vetos duros: código de barras, marca, capacidad, variante (Pro/Max/Note), generación, paquetes y accesorios. Medido contra 41 pares etiquetados a mano: **100 % de precisión** en todos los umbrales probados. |
+| **Modelado económico completo** | Comisión, envío, retenciones fiscales 2026, empaque, reserva de devoluciones y costo de capital. Incluye una rareza real del mercado: el envío gratis obligatorio desde $299 hace la utilidad **no monótona** — vender a $298 deja más que vender a $305 — con una prueba que lo fija. |
+| **Validación antes de arriesgar** | Cada oportunidad abre una posición de papel que se marca a mercado durante días, con regla GO/KILL escrita **antes** de ver los datos. Las estadísticas son las apropiadas para el problema: supervivencia (Kaplan–Meier) para cuánto vive una oferta, y bootstrap por bloques de día para los intervalos, porque las oportunidades del mismo día no son independientes. |
+| **Recolección respetuosa** | Cliente HTTP que respeta `robots.txt` y los retrasos pedidos, con caché condicional, y que se detiene ante un bloqueo en vez de insistir. Los sitios que se defienden quedan fuera por política, no por incapacidad. |
+
+### Resultados medibles
+
+El emparejador, contra los 41 pares etiquetados (`escaner match-eval data/pares_etiquetados.csv`):
+
+```
+umbral  precision  recall     f1  n_pred
+  0.85    100.00% 94.74% 97.30%      18
+  0.90    100.00% 84.21% 91.43%      16
+  0.95    100.00% 73.68% 84.85%      14
+```
+
+Precisión perfecta en todo el rango: nunca empareja un producto que no es. El recall baja al
+subir el umbral, que es el intercambio correcto cuando el falso positivo cuesta dinero y el
+falso negativo solo cuesta una oportunidad.
+
+El pipeline completo, offline (`make demo`):
+
+```
+Ofertas vistas: 15 · en revisión: 1 · sin candidato útil: 4 · oportunidades: 2
+```
+
+Cuatro de los descartes son señuelos deliberados —una funda, un reacondicionado, un paquete de 2
+y un modelo no-Pro contra un catálogo que solo tiene la variante Pro— y el emparejador los veta
+por la razón correcta, no por casualidad. De las once ofertas legítimas sobreviven dos: LEGO
+75301 con 26.2 % de ROI y una licuadora Oster con 17.7 %.
+
+### Flujo
+
+```mermaid
+flowchart TD
+    SRC["fuentes<br/>Promodescuentos · Keepa · JSON-LD · CSV"] --> HTTP[cliente cortés<br/>robots.txt · caché · alto ante bloqueo]
+    HTTP --> CAND[candidatos en Mercado Libre]
+    CAND --> VETO{vetos duros<br/>código · marca · variante<br/>capacidad · paquete · accesorio}
+    VETO -->|veta| OUT[descartada]
+    VETO -->|pasa| SCORE[similitud calibrada<br/>regresión logística]
+    SCORE -->|zona gris| JUDGE[juez LLM]
+    JUDGE --> PRICE
+    SCORE -->|match| PRICE[precio competitivo real<br/>buy box y comparables]
+    PRICE --> PROFIT["utilidad neta<br/>comisión · envío · impuestos 2026<br/>empaque · devoluciones · capital"]
+    PROFIT --> GATE{ROI y utilidad mínimos}
+    GATE -->|pasa| PAPER[(posición de papel)]
+    PAPER --> MARK[marca a mercado<br/>re-cotiza y revisa si la oferta vive]
+    MARK --> VERDICT["veredicto preregistrado<br/>GO · KILL · seguir midiendo"]
+```
+
+### Cómo contarlo
+
+Guion de tres minutos con las preguntas que suelen seguir:
+[`docs/GUION_ENTREVISTA.md`](docs/GUION_ENTREVISTA.md).
+
 ## La tesis (y el giro)
 
 *Productos en liquidación se consiguen por debajo del precio competitivo de Mercado Libre por

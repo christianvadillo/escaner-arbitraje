@@ -47,6 +47,13 @@ con una regla GO/KILL preregistrada. Repo local + remoto privado en GitHub.
   recalibraron a liquidaciones realistas (20–37 %): ahora pasan 2/11 y queda visible que ~20–25 %
   de descuento es break-even después de costos. (2) La lista negra (Walmart, Liverpool, Coppel)
   comparaba el host exacto; ahora cubre subdominios (m.liverpool.com.mx) con test. 154 tests.
+- 2026-09-19 — **Tratamiento de portafolio** (mismo criterio que copiloto-reclamos, tras decidir
+  no perseguir el camino comercial). README con "qué demuestra": matar la propia tesis con
+  datos (2/11, break-even 20–25 %), emparejamiento asimétrico con 100 % de precisión sobre 41
+  pares, economía completa con la no monotonía del umbral $299, validación en papel con KM +
+  block bootstrap y regla preregistrada, y recolección respetuosa. Salidas reales de
+  `match-eval` y `demo` pegadas, diagrama Mermaid verificado renderizándolo, y
+  `docs/GUION_ENTREVISTA.md` (3 min + FAQ, incluida "¿no es un fracaso entonces?").
 
 ---
 

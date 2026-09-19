@@ -29,7 +29,7 @@ con una regla GO/KILL preregistrada. Repo local + remoto privado en GitHub.
 - [x] Pipeline (worker Sonnet): config, PoliteClient (robots, crawl-delay, alto ante bloqueo, lista negra), fuentes (Promodescuentos RSS, Keepa, JSON-LD, CSV), cliente ML + OAuth + fake, candidatos, juez LLM, pricing, scanner, store, ledger de papel, reporte, CLI, tests, docs, CI
 - [x] Revisión del hilo principal
 - [x] Commit inicial + repo remoto privado + push
-- [ ] Vault (diario-global) + memoria
+- [x] Vault (diario-global) + memoria
 
 ## VALIDACIÓN
 

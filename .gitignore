@@ -1,0 +1,25 @@
+# entorno
+.venv/
+__pycache__/
+*.pyc
+.ruff_cache/
+.pytest_cache/
+*.egg-info/
+build/
+dist/
+
+# datos y credenciales — NUNCA versionar
+.env
+data/*.db
+data/*.db-journal
+data/ml_token.json
+data/*.tmp
+
+# se versiona a propósito: la semilla de pares etiquetados para calibrar el matcher
+!data/pares_etiquetados.csv
+
+# editores / SO
+.vscode/
+.idea/
+.DS_Store
+
